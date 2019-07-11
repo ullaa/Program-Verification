@@ -1,0 +1,28 @@
+field next : Ref
+field val : Int
+
+predicate listelems(start : Ref, els: Seq[Int])
+{
+    acc(start.val) && acc(start.next) 
+    && |els| > 0 && els[0] == start.val 
+    && (start.next == null 
+    ?  els == Seq(start.val) 
+    : listelems(start.next, els[1..]))
+}
+
+method appendelems(l1 : Ref, l2: Ref, 
+        l1elems : Seq[Int], l2elems : Seq[Int]) 
+    requires listelems(l1, l1elems) && listelems(l2, l2elems) 
+        && l2 != null 
+    ensures listelems(l1, l1elems ++ l2elems)
+{
+    unfold listelems(l1, l1elems) 
+    if(l1.next == null) {
+        l1.next := l2 
+    } else {
+        appendelems(l1.next, l2, l1elems[1..], l2elems) 
+    }
+    assert (l1elems ++ l2elems)[1..] == (l1elems[1..] ++ l2elems)
+    fold listelems(l1, l1elems ++ l2elems)
+}
+

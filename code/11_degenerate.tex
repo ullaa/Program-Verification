@@ -1,0 +1,30 @@
+field next : Ref
+field val : Int
+
+predicate lseg(start: Ref, end: Ref) {
+    acc(start.val) && acc(start.next) 
+        && (start.next != end ==> lseg(start.next, end))
+}
+
+function lsegelems(start: Ref, end: Ref) : Seq[Int] 
+  requires lseg(start, end)
+{
+  unfolding lseg(start, end) in (
+    (start.next == end
+      ? Seq(start.val) 
+      : Seq(start.val) ++ lsegelems(start.next, end))) 
+}
+
+method addAtEnd(l1: Ref, l2: Ref)
+    requires lseg(l1, l2) && acc(l2.val) && acc(l2.next) 
+    ensures lseg(l1, old(l2.next)) 
+        && lsegelems(l1, old(l2.next)) 
+        == old(lsegelems(l1, l2)) ++ Seq(old(l2.val))
+        
+method addAtEndFixed(l1: Ref, l2: Ref)
+    requires lseg(l1, l2) && acc(l2.val) && acc(l2.next) 
+        && acc(l2.next.next, 1/2) 
+    ensures lseg(l1, old(l2.next)) 
+        && lsegelems(l1, old(l2.next)) 
+        == old(lsegelems(l1, l2)) ++ Seq(old(l2.val)) 
+    ensures acc(old(l2.next).next, 1/2)

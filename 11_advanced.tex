@@ -1,0 +1,23 @@
+% !TEX root = main.tex
+\section{Advanced Specification and Verification}
+
+\subsection{Frequent Scenarios}
+\begin{mytitle}[Abstraction] Abstract predicates, functions or methods consist of a name and signature/specification but no body. They are used to abstract over concrete definitions in specifications. This enables information hiding, even for bounded data structures.
+\end{mytitle}
+\begin{mytitle}[Degenerate specification] Writing procedure specifications without implementing them runs the risk that implementations turn out to be awkward or impossible. A procedure might not be implementable simply because the task is impossible, or because e.g. the precondition allows for unintended initial states, so called degenerate cases.
+\end{mytitle}
+\lstinputlisting[caption={Degenerate case example. Here the precondition of \texttt{addAtEnd} permits the possibility that \texttt{l1.next} == \texttt{l2.next} and with that initial state the postcondition is unsatisfiable. \texttt{addAtEndFixed} fixes this problem by making sure \texttt{l1.next} != \texttt{l2.next}.},language=viper] {code/11_degenerate}
+\begin{mytitle}[Inconsistency due to recursion] Functions in Viper can potentially introduce inconsistency. Function postconditions can also cause inconsistencies. Predicate definitions do not have the same potential problems
+\end{mytitle}
+\lstinputlisting[caption={Bad functions and good predicates.}, language=viper] {code/11_inconsistent}
+\lstinputlisting[caption={Writing out a set to an array in Viper.}, language=viper, float] {code/11_setToArray}
+
+
+\subsection{Auxiliary State}
+\begin{mytitle}[Auxiliary state] It is common that we need state in the program just for verification purposes. This additional state is called auxiliary state. There are two main variants:
+    \begin{mysubtitle}[Ghost state] Ghost state is auxiliary state which is manually maintained and updated.
+    \end{mysubtitle}
+    \begin{mysubtitle}[Model state] Model state is auxiliary state which is automatically maintained and updated by the verifier.
+    \end{mysubtitle}
+\end{mytitle}
+\lstinputlisting[caption={Example code where \texttt{l1elems} and \texttt{l2elems} are ghost state. For an example on model state, see Code \ref{list}, where \texttt{elems} is model state.}, language=viper] {code/11_aux}

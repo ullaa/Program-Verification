@@ -1,0 +1,14 @@
+type Key T;
+function makeKey <T> (v: T) returns (Key T);
+
+type PolyMap = <S> [Key S] S;
+
+procedure test(n: PolyMap) {
+    var m: PolyMap;
+    var k: Key PolyMap;
+    m := n[makeKey(1) := 3];
+    k := makeKey(m);
+    m[k] := m;   
+    m[k] := m;
+    assert m[k][k][makeKey(1)] == 3;
+}

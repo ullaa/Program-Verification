@@ -1,0 +1,9 @@
+field next : Ref
+field val : Int
+predicate positive_node (n: Ref) {
+    acc(n.val) && acc(n.next) && n.val >= 0
+}
+predicate list (start: Ref) {
+    acc(start.val) && acc(start.next) 
+        && (start.next != null ==> list(start.next))
+}

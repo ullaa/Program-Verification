@@ -1,0 +1,29 @@
+% !TEX root = main.tex
+\section{Unbounded Heap Data}
+\begin{mytitle}[How to handle unbounded heap data] There are two main techniques for handling unbounded data structures in IDF: recursive definitions for predicates and functions or quantified permissions.
+\end{mytitle}
+
+\subsection{Recursive Definitions}
+\begin{mytitle}[Predicate] A predicate declaration consists of a name, any number of formal parameters and a body, which is a self-framing assertion. 
+\end{mytitle}
+\begin{mytitle}[Recursive predicates] The predicate's body can include instances of the predicate being declared. These predicate definitions are interpreted as least-fixed points. All instances of the predicate have finite unfolding. We treat predicate definitions iso-recursively. Thus a predicate instance is not treated as identical to the corresponding body, but the two can be explicitly exchanged via extra statements.
+\end{mytitle}
+%\lstinputlisting[caption={Predicates in Viper.},language=viper] {code/10_predicate}
+\begin{mytitle}[Extra statements] We add two extra statements to handle the predicate exchange explicitly:
+    \begin{mysubtitle}[\texttt{fold} statement] The \texttt{fold} statement exchanges a predicate body for a predicate instance.
+    \end{mysubtitle}
+    \begin{mysubtitle}[\texttt{unfold} statement] The \texttt{unfold} statement exchanges a predicate instance for its body.
+    \end{mysubtitle}
+    \begin{mysubtitle}[\texttt{unfolding} expression] The \texttt{unfolding} expression temporarily unfolds a predicate during the evaluation of an expression.
+    \end{mysubtitle}
+\end{mytitle}
+\begin{mytitle}[Function] A function declaration consists of a name, declared formal parameters and a return-type, a body which is an expression, a self-framing precondition and optionally a pure postcondition. Functions are side-effect free, so all access in the precondition is still there after the function.
+\end{mytitle}
+\lstinputlisting[caption={Modeling a linked list in Viper.},language=viper, label={list}, float] {code/10_fold}
+\begin{mytitle}[Recursive definitions] Recursive definitions are natural for implementations which perform top-down, recursive traversals. They can easily provide built-in acyclicity and tree-like guarantees. But we need additional statements and they are not useful for random access data or structures with complex sharing.
+\end{mytitle}
+
+\subsection{Quantified Permissions}
+\begin{mytitle}[Quantified permissions] We allow permissions under a quantifier like \texttt{forall} and \texttt{exists}. In general, \texttt{acc($e$.$f$)} can occur under a \texttt{forall $x$: $T$} quantifier if the mapping from instantiations of $x$ to instantiations of $e$ is injective. Just as for pure quantifiers, quantified permissions must be appropriately instantiated. Thus selecting a good trigger is important. This approach works well for random-access situations or structures with cycles or sharing. 
+\end{mytitle}
+\lstinputlisting[caption={Encoding of arrays in Viper.},language=viper, float] {code/10_arrays}

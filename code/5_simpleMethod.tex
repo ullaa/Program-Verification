@@ -1,0 +1,4 @@
+method test(p: IntPair, q: IntPair) {
+    assert pair(1, 2) != pair(2, 1)
+    assert fst(p) == fst(q) && snd(p) == snd(q) ==> p == q
+}

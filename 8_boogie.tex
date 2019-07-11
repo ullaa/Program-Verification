@@ -1,0 +1,54 @@
+% !TEX root = main.tex
+\section{Boogie: Intermediate Verification Language}
+\begin{mytitle}[Intermediate verification language] An intermediate verification language is designed for encoding higher-level program verification problems. The language features are tailored to express verification problems. The goal is that many higher-level languages can be encoded.
+\end{mytitle}
+\begin{mytitle}[Boogie design choices] Boogie is designed to provide reusable language features for encoding imperative, heap-based programs, representing verification requirements and adding custom types, axioms and assumptions. It is also designed to be human readable and writable. 
+\end{mytitle}
+
+\subsection{Basic Functionality}
+\begin{mytitle}[Boogie language] The correctness of programs means that there are no failing traces for each procedure. Procedures are given preconditions and postconditions, loops must be provided with appropriate invariants. Boogie has a verifier to check correctness and weakest preconditions are efficiently calculated by the Boogie verifier. It localizes errors and provides traces which reach the error location(s).
+\end{mytitle}
+\begin{mytitle}[Procedures] A procedure consists of a name, optional type parameters, named input parameters and return parameters and a body. It can include pre- and postconditions as well as loop invariants.
+\end{mytitle}
+\begin{mytitle}[Functions] A function consists of a name, optional type parameter, named or unnamed input parameters and return parameter and an optional body.
+\end{mytitle}
+\begin{mytitle}[Axioms] Axioms declare an expression that should be assumed to be true for the entire lifetime of the program. A consequence of this is that axioms cannot refer to mutable global variables. They can also have triggers.
+\end{mytitle}
+\begin{mytitle}[Custom type constructors] One can declare new types with the type constructor.
+\end{mytitle}
+\lstinputlisting[caption={Simple Boogie program.},language=boogie, float] {code/8_pair}
+\begin{mytitle}[\texttt{old} expressions] An expression \texttt{old(g)} can be used in a postcondition to refer to the value that a global variable \texttt{g} had in the pre-state of the procedure call. But using \texttt{j == old(j)} for all untouched variables is cumbersome and non-modular.
+\end{mytitle}
+\begin{mytitle}[\texttt{modifies} clause] We introduce the \texttt{modifies} clause per procedure to specify what values do change.
+\end{mytitle}
+\lstinputlisting[caption={\texttt{old} and \texttt{modifies} keywords.},language=boogie] {code/8_oldMod}
+
+\subsection{Weakest Preconditions}
+\begin{mytitle}[How to treat procedure calls] There are two possibilities, as well as hybrid models of both:
+\begin{itemize}
+    \item Inline procedure calls: this can be done in Boogie via an \texttt{\{:inline $d$\}} attribute before the procedure name, $d$ denotes the depth up to which it is inlined. The pros are that all the information is there and there is less effort for the user. The cons are that we leak implementation details, performance suffers, there is no support for recursion and inline code changes need re-verification.
+    \item Use specification only: this is node in Boogie by default. The pros are increases in modularity and performance, possibility of recursion and re-verification is only needed when the specification changes. The cons are that it is more effort for the user to write pre- and postconditions and that the completeness depends on the specification.
+\end{itemize}
+\end{mytitle}
+\begin{mytitle}[$wlp$ for procedure calls] In Boogie, we have the following $wlp$ rule for method calls: 
+\begin{itemize}
+    \item $wlp(\texttt{call $\vec{z}$ := p($\vec{e}$)}, A) = wlp(\texttt{assert pre [$\vec{e}$/$\vec{x}$]; $\vec{o}$ := $\vec{g}$; havoc $\vec{z}$;}$ \\
+    $\texttt{assume post [$\vec{e}$[$\vec{o}$/$\vec{g}$]/$\vec{x}$][$\vec{z}$/$\vec{y}$][$\vec{o}$/old($\vec{g}$)]},\ A)$
+\end{itemize}
+$\vec{o}$ are fresh local variables and \texttt{p} is declared as \texttt{procedure p($\vec{x}$) returns ($\vec{y}$) requires pre; ensures post; modifies $\vec{g}$}. We assume that the variables $\vec{z}$ do not occur in paramters $\vec{e}$.
+\end{mytitle}
+
+\subsection{Maps, Arrays and Heaps}
+\begin{mytitle}[Maps] Maps are built-in in Boogie and are declared with a domain and a range. Maps are immutable, updating a map defines a new map. They are not extensional.
+\end{mytitle}
+\lstinputlisting[caption={Maps in Boogie.},language=boogie] {code/8_maps}
+\begin{mytitle}[Polymorphic maps] Type synonyms declare a name for a particular type, like we saw with \texttt{IntPair} above. Combined with polymorphic types this allows for recursive types.
+\end{mytitle}
+\lstinputlisting[caption={Polymorphic maps in Boogie.},language=boogie, float] {code/8_poly}
+\begin{mytitle}[Sequences] We can use maps to model sequences.
+\end{mytitle}
+\lstinputlisting[caption={Modeling sequences in Boogie.},language=boogie, float] {code/8_sequences}
+\begin{mytitle}[Object-based heap] We can also use maps to model an object-based heap with object allocation using an alloc field. Richer heap notions usually require a higher-level language, as framing quickly becomes brittle.
+\end{mytitle}
+\lstinputlisting[caption={Modeling a heap in Boogie.},language=boogie, float] {code/8_heap}
+

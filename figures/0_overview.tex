@@ -1,0 +1,15 @@
+\begin{center}
+\begin{tikzpicture}
+\node (a) [draw, align=center] at (0,0) {Front-End Verifiers};
+\node (b) [draw, align=center] at (0,-1) {Viper (ETH)};
+\node (c) [draw, align=center] at (0,-2) {Boogie (MSR)};
+\node (d) [draw, align=center] at (0,-3) {SMT Solvers};
+\node (e) [draw, align=center] at (0,-4) {SAT Solvers};
+
+\draw [->](a) -- (b);
+\draw [->](b) -- (c);
+\draw [->](c) -- (d);
+\draw [->](d) -- (e);
+\end{tikzpicture}
+\captionof{figure}{Overview}
+\end{center}

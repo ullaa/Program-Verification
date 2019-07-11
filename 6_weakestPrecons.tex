@@ -1,0 +1,49 @@
+% !TEX root = main.tex
+\section{Weakest Preconditions}
+\subsection{Definitions}
+\begin{mytitle}[Partial correctness] A program $s$ is partially correct with respect to pre- and postconditions $A_1$ and $A_2$ iff all executions of $s$ starting from states satisfying $A_1$ are free of runtime errors and any such executions which terminate will do so in states satisfying $A_2$.
+\end{mytitle}
+\begin{mytitle}[Hoare triple] We express the notion of partial correctness using a Hoare triple $\{A_1\}s\{A_2\}$.
+\end{mytitle}
+\begin{mytitle}[Definition of small imperative language] Our language has program variables $x, y, z, \ldots$, expressions $e, e_1, e_2, \ldots$, assertions $A$ and statements $s$. We assume small-step operational semantics. A runtime configuration is a pair $(s, \sigma)$ of a statement $s$ and a runtime state $\sigma$
+    \begin{mysubtitle}[Statements] \hfill
+    \begin{itemize}
+        \item Standard statements: \texttt{skip, $x:=e$, $s_1$; $s_2$, if ($b$) \{$s_1$\} else \{$s_2$\}, while ($b$) \{$s$\}}
+        \item Verification statements: \texttt{assert $A$, assume $A$}
+        \item Non-deterministic statements: \texttt{$s_1$[]$s_2$, havoc $x$}
+    \end{itemize}
+    \end{mysubtitle}
+    \begin{mysubtitle}[Runtime state] A runtime state is a mapping $\sigma$ from variables to values.
+    \end{mysubtitle}
+    \begin{mysubtitle}[Trace] A trace is either an infinite sequence of runtime configurations or a finite sequence of runtime configurations appended with one of the following: a single runtime state $\sigma$ (normal), the symbol $error$ (for a failing execution) or the symbol $magic$ (when the trace just kinda disappears).
+    \end{mysubtitle}
+\end{mytitle}
+\begin{mytitle}[Partial correctness again] We write $\models \{A_1\}s\{A_2\}$ and say $s$ is partially correct with respect to precondition $A_1$ and post-condition $A_2$ if the following is true: The set of all possible traces starting from some $(s, \sigma_1)$ with $\sigma_1\in \Sigma_1=\{\sigma_1\ |\ \sigma_1\models A_1\}$ does not contain any failing traces and for final states $\sigma_2$ of each of the complete traces in the set we have $\sigma_2\models A_2$.
+\end{mytitle}
+
+\subsection{Weakest Precondition Function}
+\begin{mytitle}[Predicate transformer semantics] These semantics describe how statements transform assertions. We will start from one postcondition and work backwards through $s$. At each sub-statement, we find the logically weakest precondition which works for this statement.
+\end{mytitle}
+\begin{mytitle}[Weakest precondition function] The weakest precondition function $wlp(s, A)$ returns an assertion such that we have
+\begin{itemize}
+    \item Soundness: for all $s, A$: $\models\{wlp(s, A)\}s\{A\}$
+    \item Minimality: for all $s, A_1, A_2$: if $\models\{A_1\}s\{A_2\}$ then $A_1\models wlp(s, A_2)$
+    \item Computability: for all $s, A$: $wlp(s, A)$ is computable
+\end{itemize}
+If we had this, we could build a program verifier checking $\models\{A_1\}s\{A_2\}$ by computing $wlp(s, A_2)$ and then checking that $A_1\land \lnot wlp(s, A_2)$ is $unsat$.
+\end{mytitle}
+\begin{mytitle}[$wlp$ for our small imperative language] This is sound, but the completeness depends on loop invariants.
+\begin{itemize}
+    \item $wlp(\texttt{skip}, A) = A$
+    \item $wlp(x:=e, A) = A[e/x]$
+    \item $wlp(\texttt{$s_1$; $s_2$}, A) = wlp(s_1, wlp(s_2, A))$
+    \item $wlp(\texttt{if ($b$) \{$s_1$\} else \{$s_2$\}}, A) = (b\To wlp(s_1,A)) \land(\lnot b \To wlp(s_2, A))$
+    \item $wlp(\texttt{while ($b$) invariant $A_I$ \{$s$\}},\ A) = wlp(\texttt{assert $A_I$; havoc $x_1$; \ldots ;\ havoc $x_n$;}$ \\ 
+    $\texttt{((assume $A_I\land b$; $s$; assert $A_I$; assume false) [] (assume $A_I\land \lnot b$))},\ A)$ \\
+    = \texttt{$A_I\land \forall \vec{y}$ (($A_I\land b\To wlp$($s$, $A_I$)) $\land$ ($A_I\land \lnot b\To A$)) [$\vec{y}$/$\vec{x}$]}
+    \item $wlp(\texttt{assert $A_1$}, A) = A_1\land A$
+    \item $wlp(\texttt{assume $A_1$}, A) = A_1 \To A$
+    \item $wlp(\texttt{$s_1$[]$s_2$}, A) = wlp(s_1, A) \land wlp(s_2, A)$
+    \item $wlp(\texttt{havoc $x$}, A) = \forall v A[v/x]$
+\end{itemize}
+\end{mytitle}

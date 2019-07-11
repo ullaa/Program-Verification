@@ -1,0 +1,34 @@
+field val: Int
+domain Array {
+    function loc(a: Array, i: Int): Ref 
+    function len(a: Array): Int 
+    function first(r: Ref): Array 
+    function second(r: Ref): Int
+    axiom injectivity {
+        forall a: Array, i: Int :: {loc(a, i)} 
+            first(loc(a, i)) == a && second(loc(a, i)) == i
+    }
+    axiom length_nonneg {
+        forall a: Array :: len(a) >= 0
+    } 
+}
+
+method incrementAll(a:Array)
+    requires forall i: Int :: 0 <= i && i < len(a) 
+        ==> acc(loc(a,i).val) 
+    ensures forall i: Int :: 0 <= i && i < len(a) 
+        ==> acc(loc(a, i).val) 
+        && loc(a, i).val == old(loc(a, i).val) + 1 
+{
+    var j: Int := 0 
+    while(j < len(a))
+        invariant forall i: Int :: 0 <= i && i < len(a) 
+            ==> acc(loc(a, i).val) && loc(a, i).val 
+            == old(loc(a, i).val) + (i < j ? 1 : 0)
+        invariant 0 <= j && j <= len(a) 
+    {
+        loc(a, z).val := loc(a, j).val + 1
+        j := j + 1 
+    }
+}
+    

@@ -1,0 +1,58 @@
+\parindent=0em
+\documentclass[11pt, oneside]{article}   						%use article, report, book
+
+\input{Vorspann_Defi.tex}
+\setcounter{section}{-1}
+\newcommand{\To}{\Rightarrow}
+\newcommand{\val}[2]{\lceil#1\rfloor_#2}
+\tikzset{>=stealth}
+\DeclareFloatingEnvironment[fileext=frm,placement={!ht},name=Code]{code}
+%\captionsetup[code]{labelfont=bf}
+
+\lstdefinelanguage{viper}
+{morekeywords={function, axiom, domain, forall, assert, method, field, predicate, acc, requires, Seq, unfolding, ensures, old, unfold, fold, if, else, while, null, Set, var, invariant, exists, inhale, setminus, assume}}
+\lstdefinelanguage{boogie}
+{morekeywords={procedure, returns, requires, ensures, while, invariant, function, if, then, else, axiom, forall, type, div, call, assert, var, modifies, old, const, havoc, assume}}
+\renewcommand{\lstlistingname}{Code}
+\lstset{
+    frame = tb, 
+    captionpos = b}
+
+\title{Program Verification Summary}
+\author{Ulla Aeschbacher}
+\date{1.7.19} %started, done 0, 1, 2, 3
+\date{2.7.19} %done 4, 5
+\date{3.7.19} %done 6, 7, 8, 9
+\date{4.7.19} %done 10, 11
+
+%\includeonly{0_overview}
+%\includeonly{1_SAT}
+%\includeonly{2_encodingSAT}
+%\includeonly{3_SMT}
+%\includeonly{4_quantifiers}
+%\includeonly{5_encodingSMT}
+%\includeonly{6_weakestPrecons}
+%\includeonly{7_refinedConditions}
+%\includeonly{8_boogie}
+%\includeonly{9_heapReasoning}
+%\includeonly{10_unboundedHeap}
+%\includeonly{11_advanced}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\include{0_overview}
+\include{1_SAT}
+\include{2_encodingSAT}
+\include{3_SMT}
+\include{4_quantifiers}
+\include{5_encodingSMT}
+\include{6_weakestPrecons}
+\include{7_refinedConditions}
+\include{8_boogie}
+\include{9_heapReasoning}
+\include{10_unboundedHeap}
+\include{11_advanced}
+
+\end{document}

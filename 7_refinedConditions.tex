@@ -1,0 +1,30 @@
+% !TEX root = main.tex
+\section{Refined Verification Condition Generation}
+\subsection{Problems with $wlp$}
+\begin{mytitle}[Problems with our $wlp$ definition] Our current $wlp$ definition can generate (exponentially) large formulas, because for branching and non-deterministic statements we copy $A$, it doesn't tell us which assertion(s) in the program potentially fail and we don't know how many assertion violations are possible. 
+\end{mytitle}
+\begin{mytitle}[Dynamic single assignment] As a solution to the above problems, we could define $wlp(\texttt{$s_1$ [ ] $s_2$}, A) = (p\Leftrightarrow A) \To wlp(s_1, p) \land wlp(s_2, p)$ then we wouldn't duplicate $A$. But this doesn't work as long as we have variables with changing values. Thus we first need to eliminate assignments. A program is defined to be in dynamic single assignment (DSA), if in each trace of the program, each variable is assigned to at most once. 
+\end{mytitle}
+\begin{mytitle}[Converting to DSA]\hfill
+\begin{enumerate}
+    \item Desugar loops.
+    \item Introduce versions of variables, track the latest version of each variable and use this in expressions. Assignments increment the version. \texttt{havoc} is replaced with \texttt{skip} but also increments the version.
+    \item Process branches independently. Per variable, if there are different final versions used in the two branches, introduce a version unused in both branches and assign the latest value to this in each branch.
+    \item Eliminate all variable assignments \texttt{$x:= e$} and replace them by \texttt{assume $x=e$.}
+    \item Optionally we can also rewrite \texttt{skip} to \texttt{assume true} and \texttt{if ($b$) \{$s_1$\} else \{$s_2$\}} to \texttt{(assume $b$; $s_1$) [] (assume $\lnot b$; $s_2$)}.
+\end{enumerate}
+%Then we can define $wlp(\text{$s_1$ [ ] $s_2$}, A) = (p\Leftrightarrow A) \To wlp(s_1, p) \land wlp(s_2, p)$.
+\end{mytitle}
+
+\subsection{Definition of $wlp^*$}
+\begin{mytitle}[Generalizing $wlp$] We want to track multiple verification conditions separately. For this we generalize our $wlp$ operator to $wlp^*$ working on a multiset of assertions $\Delta$. Each element of our multiset comes from a distinct program point.
+\end{mytitle}
+\begin{mytitle}[$wlp^*$ for our small imperative language] Most of the statements behave the same as in $wlp$ (just replacing $A$ with $\Delta$) except for the following:
+\begin{itemize}
+    \item $wlp^*(\texttt{$s_1$; $s_2$}, \Delta) = wlp^*(s_1, wlp^*(s_2, A))$
+    \item $wlp^*(\texttt{assert $A_1$}, \Delta) = \Delta\cup\{A_1\}$
+    \item $wlp^*(\texttt{assume $A_1$}, \Delta) = \{A_1 \To A\ |\ A \in \Delta\}$
+    \item $wlp^*(\texttt{$s_1$[ ]$s_2$}, \Delta) = wlp^*(s_1, \Delta) \cup wlp^*(s_2, \Delta)$
+\end{itemize}
+To verify a Hoare triplet $\{A_1\}s\{A_2\}$ we check the entailment $A_1\models A$ for each $A\in wlp^*(s, \{A_2\})$. If we also record the program point at which each element of our multisets originated, we can now easily report error locations. The disadvantage of this is that theory-specific work may be repeated for each entailment that is checked, as well as quantifier instantiations. This can make it rather slow.
+\end{mytitle}

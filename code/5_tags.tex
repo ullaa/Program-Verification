@@ -1,0 +1,13 @@
+function zero(): Nat
+function succ(n: Nat): Nat
+function tag(n: Nat): Int
+axiom tag_zero {
+    tag(zero()) == 0
+}
+axiom tag_succ {
+    forall n: Nat :: {succ(n)} tag(succ(n)) == 1
+}
+axiom all_tags {
+    forall n: Nat :: {tag(n)} (tag(n) == 0 && n == zero()) 
+        || (tag(n) == 1 && exists m: Nat :: n == succ(m))
+}

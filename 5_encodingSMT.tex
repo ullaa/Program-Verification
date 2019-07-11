@@ -1,0 +1,22 @@
+% !TEX root = main.tex
+\section{Encoding to SMT}
+\subsection{Defining the Language}
+\begin{mytitle}[Domains] Domains enable the definition of additional types, mathematical functions, and axioms that provide their properties. Syntactically, domains consist of a name (for the newly-introduced type), and a block in which a number of function declarations and axioms can be introduced.
+\end{mytitle}
+\begin{mytitle}[Functions] Domain functions may have neither a body nor a specification. These are uninterpreted total mathematical functions.
+\end{mytitle}
+\begin{mytitle}[Axioms] Domain axioms consist of name (following the axiom keyword), and a definition enclosed within braces (which is a boolean expression which may not read the program state in any way).
+\end{mytitle}
+\lstinputlisting[caption={Simple example program.},language=viper] {code/5_simpleLanguage}
+\begin{mytitle}[Methods] We write methods taking arbitrary parameters to test properties of our axiomatization. Method bodies will be a sequence of assume and assert statements. 
+\end{mytitle}
+\lstinputlisting[caption={Simple example method.},language=viper] {code/5_simpleMethod}
+\subsection{Adding Functionality}
+\begin{mytitle}[Tags] To define which case of the data type definition a value comes from, we add a tag function.
+\end{mytitle}
+\lstinputlisting[caption={Using tags.},language=viper, float] {code/5_tags}
+\begin{mytitle}[Limited functions] To deal with matching loops, we want to unroll the definition just once for each original occurrence of the function. To do that we add limited functions.
+\end{mytitle}
+\lstinputlisting[caption={Using limited functions.},language=viper, float] {code/5_limitedFunctions}
+\begin{mytitle}[Sequences] Sequences can be indexed by integers and store some (fixed) type $T$ of values. Sequences are not functional lists and are not classical ADT's, because there can be many ways to construct the same sequence. In other words, there is no canonical constructor for arbitrary-length sequences. To check for equality we nee extensionality, i.e. observational equality.
+\end{mytitle}

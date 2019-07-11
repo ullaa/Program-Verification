@@ -1,0 +1,32 @@
+type Pair S T;
+
+function pair <S,T>(i: S, j: T) : Pair S T;
+function fst <S,T>(p: Pair S T) : S;
+function snd <S,T>(p: Pair S T) : T;
+
+axiom (forall <S,T> s: S, t: T :: 
+    {pair(s,t)} fst(pair(s,t)) == s);
+axiom (forall <S,T> s: S, t: T :: 
+    {pair(s,t)} snd(pair(s,t)) == t);
+axiom (forall <S,T> p: Pair S T :: 
+    {fst(p)}{snd(p)} pair(fst(p),snd(p)) == p);
+
+type IntPair = Pair int int;
+
+procedure test() {
+    assert snd(pair(1, 2)) == 2;
+    assert pair(1, 2) != pair(2, 1);
+    assert (forall p : IntPair, q: IntPair ::
+    fst(p) == fst(q) && snd(p) == snd(q) ==> p == q);  
+}
+
+procedure destruct(p: IntPair) returns (a: int, b: int);
+    ensures a == fst(p) && b == snd(p);
+
+procedure testTwo()
+{
+    var i: int; 
+    var j: int;
+    call i,j := destruct(pair(1,2));
+    assert j == 2;
+}

@@ -1,0 +1,25 @@
+type IntSeq;
+function elems(s:IntSeq) : [int]int;
+function length(s:IntSeq) : int;
+
+var m:IntSeq;
+var n:IntSeq;
+
+procedure n_reverse_m();
+    modifies n;
+    ensures length(n)==length(m);
+    ensures (forall i: int ::  {elems(n)[i]}
+        0 <= i && i < length(n) ==>
+            elems(n)[i] == elems(m)[length(n) - i - 1]);
+      
+procedure test()
+    modifies m, n;
+{
+    call n_reverse_m();
+    m := n; call n_reverse_m();
+    assert (forall i: int ::
+        0 <= i && i < length(n) ==> 
+            elems(n)[i] == old(elems(m))[i]);
+}
+  
+  

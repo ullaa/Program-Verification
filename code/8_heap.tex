@@ -1,0 +1,19 @@
+type Ref; // references
+type Field T; // fields
+type ObjectHeap = <T> [Ref, Field T] T;
+
+var Heap : ObjectHeap;
+const alloc : Field bool;
+
+procedure test(x: Ref)
+    requires Heap[x,alloc];
+    modifies Heap;
+{
+    var y: Ref;
+    // model allocating a fresh object
+    havoc y; 
+    assume !Heap[y, alloc];
+    Heap[y, alloc] := true;
+    
+    assert x != y; // succeeds
+}

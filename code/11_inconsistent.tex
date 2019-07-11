@@ -1,0 +1,38 @@
+function bad(x: Int) : Int { 
+    1 + bad(x) 
+}
+method test(x: Int) 
+    requires bad(x) == 42
+{
+    assert false 
+    // this works, because bad is infinite 
+    // and we know nothing of the value
+}
+
+function still_bad(x: Int) : Int 
+    ensures false
+{ 
+    still_bad(x) 
+}
+method test_more(x: Int) 
+    requires bad(x) == 42
+{ 
+    assert false 
+    // this works, because the verifier assumes 
+    // the postcondition of still_bad
+}
+
+predicate ok(i: Int) { 
+    ok(i+1) 
+}
+predicate still_ok(x: Int) { 
+    still_ok(x) 
+}
+method test(x: Int)
+    requires ok(x) && still_ok(x) // this precondition is false!
+{
+    unfold ok(x);
+    // assert false // fails, inconsistency not detected 
+    unfold still_ok(x);
+    assert false // Carbon succeeds, Silicon doesn’t detect it
+}

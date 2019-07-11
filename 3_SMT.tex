@@ -1,0 +1,90 @@
+% !TEX root = main.tex
+\section{SMT Solving}
+\begin{mytitle}[The SMT problem] Given a first-order logic formula with interpreted and uninterpreted symbols from possibly several theories, does there exist a model?
+\end{mytitle}
+\begin{mytitle}[Approaches to SMT] There are three approaches for theory support:
+\begin{itemize}
+    \item Eager SMT desugars a theory into a SAT problem. This is only possible for certain limited theories.
+    \item Lazy SMT integrates theory support into the propositional search.
+    \item We can also model a theory using other supported features. This is typically done by combining uninterpreted functions/sorts and quantified axioms.
+\end{itemize}
+We will only look at lazy SMT in this lecture.
+\end{mytitle}
+
+\subsection{Definitions}
+\begin{mytitle}[Theory] A theory $T$ is a pair of a signature $sig(T)$ and a set of models $models(T)$. The domain of all $models(T)$ must be $sig(T)$ and all elements of $models(T)$ must interpret interpreted symbols as usual. One example is the theory of non-linear arithmetic $T_Z$ has $sig(T_Z)=\{Int, 0, 1, +, -, \cdot, /, \le\}$.
+\end{mytitle}
+\begin{mytitle}[$S$-formula] For a signature $S$, a formula $A$ is a $S$-formula iff $A$ contains only function symbols belonging to $S$ and uninterpreted constant symbols.
+\end{mytitle}
+\begin{mytitle}[$T$-formula] A formula $A$ is a $T$-formula iff $A$ is a $sig(T)$-formula.
+\end{mytitle}
+\begin{mytitle}[$T$-satisfiability] A formula $A$ is $T$-satisfiable iff there exists $M\in models(T)$ such that $M\models A$.
+\end{mytitle}
+\begin{mytitle}[$T$-entailment] A set of $T$-formulas $\Gamma$ $T$-entails a $T$-formula $A$, written $\Gamma \models_T A$, iff for all $M\in models(T)$ holds that if $M$ satisfies all formulas in $\Gamma$, then $M\models A$.
+\end{mytitle}
+\begin{mytitle}[$T$-consistency] A set of $T$-formulas $\Gamma$ is $T$-consistent iff $\Gamma \not\models_T \bot$.
+\end{mytitle}
+\begin{mytitle}[Disjointedness] Two theories $T_1$ and $T_2$ are disjoint if their signatures overlap only on standard elements and uninterpreted constants.
+\end{mytitle}
+\begin{mytitle}[Atom] An atom is a formula without propositional connectives or quantifiers. For example $f(a) = b$ or $m\cdot n \le 42$, but not $\lnot(f(a)=b)$.
+\end{mytitle}
+\begin{mytitle}[First-order literal] A first-order literal is an atom or its negation.
+\end{mytitle}
+\begin{mytitle}[$T$-atom] A $T$-atom is a $T$-formula which is also an atom. 
+\end{mytitle}
+\begin{mytitle}[$S$-atom] A $S$-atom is a $S$-formula which is also an atom. 
+\end{mytitle}
+\begin{mytitle}[$T$-literal] A $T$-literal is a $T$-formula which is also a literal.
+\end{mytitle}
+\begin{mytitle}[$S$-literal] A $S$-literal is a $S$-formula which is also a literal.
+\end{mytitle}
+\begin{mytitle}[Theory solver] A theory solver should be able to answer the following questions:
+\begin{itemize}
+    \item Is a given set of $T$-literals $\Gamma$ $T$-consistent? If so what is a $T$-model? If not, what is a preferably minimal $T$-inconsistent subset of $\Gamma$?
+    \item For a $T$-consistent set $\Gamma$ of $T$-literals, are there extra implied literals?
+    \item Fir a $T$-consistent set $\Gamma$, are there any implied interface equalities?
+\end{itemize}
+\end{mytitle}
+
+\subsection{DPLL(T) Algorithm}
+\begin{mytitle}[Propositional abstraction] For a given signature $S$ we define a signature $S^P$ containing only a fresh uninterpreted Bool constant for each $S$-atom. We then fix a bijective mapping from the $S$-atoms to the $S^P$-atoms. For a $S$-formula $A$, the propositional abstraction of $A$, written $A^P$, is defined by replacing all atoms in $A$ with their image in this mapping.
+\end{mytitle}
+\begin{mytitle}[Propositional unsatisfiability] An $S$-formula $A$ is propositionally unsatisfiable if $A^P \models \bot$. $A^P\models \bot \To A\models \bot$ but not necessarily vice versa.
+\end{mytitle}
+\begin{mytitle}[Propositional entailment] An $S$-formula $A$ propositionally entails an $S$-formula $B$, iff $A^P \models B^P$. $A^P\models B^P \To A\models B$ but not necessarily vice versa.
+\end{mytitle}
+\begin{mytitle}[Adapting DPLL to DPLL(T)] We run a DPLL-like search on the propositional abstraction $A^P$ of the input $T$-formula $A$ until we either reach a conflict, where we backtrack/-jump as usual, or find a model represented by a set of literals $\Gamma$. If it is a $T$-model, we ask the theory solver if $T$ is $T$-consistent. If yes, we are done. Otherwise we backtrack in the original search. The theory solver can tell us which literals contradict so we can do some CDCL-style clause learning.
+\end{mytitle}
+
+\subsection{Theory Combination}
+\begin{mytitle}[Theory combination] We want to solve problems that have multiple disjoint theories.
+\end{mytitle}
+\begin{mytitle}[Extension] A model $M'$ is an extension of a model $M$ if for every uninterpreted sort $S\in dom(M)$, $S\in dom(M')$ and $M(S) \subseteq M'(S)$ and for every term $t$ holds that if $\val{t}{M}$ is defined then $\val{t}{M'}$ is defined and $\val{t}{M} = \val{t}{M}$.
+\end{mytitle}
+\begin{mytitle}[Stably-infinite] A theory $T$ is stably-infinite, if for any $M\in models(T)$ and $T$-formula $A$ such that $M\models A$, we have $M'\models A$ in an extension $M'$ of $M$.
+\end{mytitle}
+\begin{mytitle}[Purification] For each literal $l$ in $A$, involving terms from both theories, select a subterm $t$ of $l$ containing symbols from only one theory but not the other. Choose a fresh constant symbol $c$. Rewrite $l$ in $A$ by replacing $t$ with $c$ and conjoin $c=t$ to $A$. Repeat this until each literal's functions are from a single theory plus the shared constants. 
+    \begin{mysubtitle}[Shared Constants] The newly introduced constants plus the old variables are together called the shared constants.
+    \end{mysubtitle}
+\end{mytitle}
+\begin{mytitle}[Craig's Interpolation Theorem] For a first-order $A$ and $B$ holds that if $A\models B$ then there exists $C$ such that $A\models C$ and $C\models B$ and the only function symbols in $C$ are those occurring in both $A$ and $B$ and such that $C$ is not $A$ or $B$.
+\end{mytitle}
+\begin{mytitle}[Non-deterministic Nelsen-Oppen combination] Suppose we have an input formula $A$ including only two disjoint, stably-infinite theories $T_1$ and $T_2$ for which we have theory solvers. Then we can proceed as follows:
+\begin{enumerate}
+    \item Purify $A$ to $B$, let $S$ be the shared constants.
+    \item Pick any equivalence relation on $S$ and according to it conjoin either an equality or disequality to $B$ for each pair of elements in $S$.
+    \item Use the theory extension of DPLL modified as follows: when we have to check a candidate model using the theory solvers, we check the consistency of the model but filtered for each theory solver. If both find the models consistent, we return $sat$, otherwise we process a conflict as usual.
+    \item If the DPLL search fails to find a model, we return to step 2 and choose a new equivalence relation on $S$. If all have been tried (this could take exponential time), we return $unsat$.
+\end{enumerate}
+\end{mytitle}
+\begin{mytitle}[Convexity] A theory $T$ is convex if for all finite sets of literals $\Gamma$ and for all non-empty disjunctions of equalities $\bigvee_{i\in\{0,\ldots, n\}}x_i=y_i$ holds that if $\Gamma \models_T \bigvee_{i\in\{0,\ldots, n\}}x_i=y_i$ then $\Gamma \models_T x_j=y_j$ for some $j\in \{0, \ldots, n\}$.
+\end{mytitle}
+\begin{mytitle}[Implications for convex theories] For convex theories $T$ it is sufficient to share only the equality information but not the inequality information between the solvers. This is because if there exists a model $M$ which is consistent with theory $T$ and satisfies all of the implied equalities according to $T$, there will also exist a model in which all other pairs of shared constants are not equal to each other. For example if theory $T$ says that $x=z$ is implied by the model, but does not say anything about $(x,y)$ or $(y,z)$ it is guaranteed that there is also a model $M'$ in which $x\neq y$ and $y\neq z$ because otherwise $(x=y \lor y=z)$ would have been implied.
+\end{mytitle}
+\begin{mytitle}[Deterministic Nelsen-Oppen combination] Suppose we have an input formula $A$ including only two disjoint, convex, stably-infinite theories $T_1$ and $T_2$ for which we have theory solvers. Then we can proceed as follows:
+\begin{enumerate}
+    \item Purify $A$ to $B$, let $S$ be the shared constants.
+    \item Use the theory extension on DPLL modified as follows: when we have to check a candidate model using the theory solvers, we check the consistency of the model, but filtered for each theory solver. If a theory solver finds an inconsistency, we process the conflict as usual. If a theory solver finds a model consistent, ask it for the set of implied equality literals. If there are any new ones, add these to the current model and run the other solver. Repeat this until no new equalities are added.
+    \item If no solver finds the model to be inconsistent, we return $sat$, otherwise we return $unsat$.
+\end{enumerate}
+\end{mytitle}

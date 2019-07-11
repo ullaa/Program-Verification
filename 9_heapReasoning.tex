@@ -1,0 +1,60 @@
+% !TEX root = main.tex
+\section{Heap Reasoning and Permission Logics}
+\subsection{Implicit Dynamic Frames}
+\begin{mytitle}[Adding heap support] We want to add heap support to our language. We will consider an object-based heap and will not use global variables from now on. There is a wide variety of formal approaches for heap-based reasoning. We will focus on permission-based reasoning with a logic called Implicit Dynamic Frames (IDF).
+\end{mytitle}
+\begin{mytitle}[Access permissions] Each field location in the heap has an associated access permission. For field $f$ of an object $x$, the associated access permission is denoted \texttt{acc($x$.$f$)}. A field update \texttt{$x$.$f$ := e} is only permitted when the permission \texttt{acc($x$.$f$)} is held. Access permissions can also be split into fractional permissions. The full permission \texttt{acc($x$.$f$, 1)} is equal to \texttt{acc($x$.$f$)} and is needed to write to the field. For a read, one must only hold some fractional permission. There are no permissions to fields of null, \texttt{acc($x$.$f$)} entails \texttt{$x$ != null}
+\end{mytitle}
+\begin{mytitle}[Pure assertion] An assertion without accessibility predicates is called a pure assertion.
+\end{mytitle}
+\begin{mytitle}[IDF assertions] \texttt{$A$, $B$ ::= $e$ | acc($e$.$f$, $p$) | $A \land B$ | $A * B$ | $e \To A$}
+\begin{itemize}
+    \item $e$: is a first-order formula
+    \item \texttt{acc($e$.$f$, $p$)}: where $e$ is of type \texttt{Ref} and \texttt{$e$.$f$} denotes a heap location, not a value.
+    \item $A \land B$: is the normal conjunction.
+    \item $A * B$: is the separating conjunction. $A * B$ is true if $A$ and $B$ are true and the sum of the permissions is held.
+    \item $e \To A$: here we cannot have \texttt{acc($e$.$f$, $p$)} on the left-hand side because we can never "negate" permissions in Viper. If we allowed this we could do \texttt{acc($e$.$f$, $p$) $\To \bot$} with which we take away a permission.
+\end{itemize}
+\end{mytitle}
+\begin{mytitle}[State] A state is now a triple $(H, P, \sigma)$ with heap $H$ which maps (object, field name)-pairs to values, permission mask $P$ which maps (object, field name)-pairs to rationals within $[0,1]$ and the environment $\sigma$ which maps variables to values.
+\end{mytitle}
+\begin{mytitle}[Trueness of IDF assertions] An IDF assertion $A$ is true in state $(H, P, \sigma)$, written $H, P, \sigma \models A$ as defined as follows:
+\begin{itemize}
+    \item $H, P, \sigma \models e$ iff $\val{e}{H, \sigma}$ = true
+    \item $H, P, \sigma \models$ \texttt{acc($x$.$f$)} iff $P$[$\val{e}{H, \sigma}$, $f$] $\ge \val{p}{H, \sigma}$
+    \item $H, P, \sigma \models A\land B$ iff $H, P, \sigma \models A$ and $H, P, \sigma \models B$
+    \item $H, P, \sigma \models A*B$ iff $\exists P_1, P_2:\ P = P_1 \uplus P_2$ and $H, P, \sigma \models A$ and $H, P, \sigma \models B$
+    \item $H, P, \sigma \models e\To A$ iff ($\val{e}{H, \sigma}$ = true) $\To H, P, \sigma \models A$
+\end{itemize}
+\end{mytitle}
+
+\subsection{Framing and Permissions}
+\begin{mytitle}[Framing] We define $H, P, \sigma \models_{frm} e$ (read $H, P, \sigma$ frames $e$) iff the evaluation of $e$ in the state only depends on the field reads for which permission is held in $P$. We can generalize this definition to $H, P, \sigma \models_{frm} A$. These are called well-definedness conditions. They are checked for all expressions that are evaluated.
+\end{mytitle}
+\begin{mytitle}[Required permissions] The permissions required by $A$ in state $(H, P, \sigma)$, written $\texttt{Perms($A$)}_{(H, \sigma)}$ are defined as follows:
+\begin{itemize}
+    \item $\texttt{Perms($e$)}_{(H, \sigma)}$ = $\emptyset$
+    \item $\texttt{Perms(acc($x$.$f$))}_{(H, \sigma)}$ = $\emptyset[(\val{e}{H, \sigma}, f) \to \val{p}{H, \sigma}]$
+    \item $\texttt{Perms($A\land B$)}_{(H, \sigma)}$ = $max(\texttt{Perms($A$)}_{(H, \sigma)}, \texttt{Perms($B$)}_{(H, \sigma)}$)
+    \item $\texttt{Perms($A*B$)}_{(H, \sigma)}$ = $\texttt{Perms($A$)}_{(H, \sigma)} \uplus \texttt{Perms($B$)}_{(H, \sigma)}$
+    \item $\texttt{Perms($e \To A$)}_{(H, \sigma)}$ = $\texttt{Perms($A$)}_{(H, \sigma)}$ if $\val{e}{H,\sigma}$ = true or $\emptyset$ if $\val{e}{H,\sigma}$ = false
+\end{itemize}
+\end{mytitle}
+\begin{mytitle}[Self-framing] An assertion is self-framing (written $\models_{frm} A$) iff $\forall H, P, \sigma((H, P, \sigma \models A) \To (H, P, \sigma \models_{frm} A))$
+\end{mytitle}
+
+\subsection{New Statements}
+\begin{mytitle}[Inhale and exhale] We introduce two new statements:
+    \begin{mysubtitle}[Inhale statement] \texttt{inhale $A$} adds the permissions required by $A$ and assumes pure assertions made in $A$.
+    \end{mysubtitle}
+    \begin{mysubtitle}[Exhale statement] \texttt{exhale $A$} checks that $A$ is true and removes the permissions required by $A$. It indirectly havocs all locations to which we no longer have any permission.
+    \end{mysubtitle}
+\end{mytitle}
+%\begin{mytitle}[Encoding of method calls] We can now encode method calls with \texttt{inhale} and \texttt{exhale} statements: \texttt{$\vec{z}$ := $m$($\vec{e}$)} becomes \texttt{exhale pre[$\vec{e}$/$\vec{x}$]; havoc $\vec{z}$; inhale post[$\vec{e}$/$\vec{x}$][$\vec{z}$/$\vec{y}$]} for $\vec{z} \not\in \vec{e}$. The method pre- and postconditions must be self-framing assertions.
+%\end{mytitle}
+\begin{mytitle}[Label statement] We can use a \texttt{label $l$} in a normal statement position. A labelled \texttt{old}-expression \texttt{old[$l$]($e$)} evaluates $e$ in the heap as if it was at the label $l$ statement.
+\end{mytitle}
+\begin{mytitle}[Encoding of method calls] We can now encode method calls with \texttt{inhale} and \texttt{exhale} statements and labels: \texttt{$\vec{z}$ := $m$($\vec{e}$)} becomes \texttt{label $l$; exhale pre[$\vec{e}$/$\vec{x}$]; havoc $\vec{z}$; inhale post[$\vec{e}$/$\vec{x}$][$\vec{z}$/$\vec{y}$][old[$l$]/old]}. The method pre- and postconditions must be self-framing assertions.
+\end{mytitle}
+\begin{mytitle}[Eliminating loops] We can also eliminate loops: \texttt{while ($b$) invariant $A_I$ \{$s$\}} becomes \texttt{exhale $A_I$; havoc $\vec{x}$; ((inhale $A_I\land b$; $s$; exhale $A_I$; assume false)[](inhale $A_I\land \lnot b$))}. Loop invariants must be self-framing assertions.
+\end{mytitle}

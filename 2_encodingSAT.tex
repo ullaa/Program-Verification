@@ -1,0 +1,64 @@
+% !TEX root = main.tex
+\section{Encoding to SAT}
+\begin{mytitle}[Why SAT is not enough] Many problems include features beyond propositional logic, like
+\begin{itemize}
+    \item first-order terms: variables, constants, functions, \ldots
+    \item theories: integer arithmetic, sets, floating points, \ldots
+    \item quantifiers: forall and exists
+\end{itemize}
+In most cases, such features are best handled natively with SMT, but in some cases, these features can be encoded into propositional logic. We can then directly use a SAT solver.
+\end{mytitle}
+
+\subsection{Definitions}
+\begin{mytitle}[Sort] We fix a set of sorts(types) $T_1, T_2, \ldots$ typically including Bool.
+\end{mytitle}
+\begin{mytitle}[Term variables] For each sort, we fix an alphabet of term variables $x, y, \ldots, x_1, x_2 \ldots$.
+\end{mytitle}
+\begin{mytitle}[Function symbols] We fix a set of function symbols $f, g, h, \ldots, f_1, f_2, \ldots$, each with a function signature.
+\end{mytitle}
+\begin{mytitle}[First-order terms] We define first-order terms $t, s::= x\ |\ f(t_1, t_2,\ldots)$.
+\end{mytitle}
+\begin{mytitle}[Signature] A signature is a set of sorts and function symbols over those sorts.
+\end{mytitle}
+\begin{mytitle}[First-order assertions] For a given signature, first-order assertions $A$ are defined by $A, B ::= t\ |\ \lnot A\ |\ A\land B\ |\ A\lor B\ |\ A\To B\ |\ A\Leftrightarrow B\ |\ \forall x:T.A\ |\ \exists x: T.A$, where $t$ is of sort Bool. 
+\end{mytitle}
+\begin{mytitle}[Value in a model] The value of a term $t$ in a model $M$, written $\val{t}{M}$, is defined by $\val{x}{M}=M(x)$ and $\val{f(t_1, t_2, \ldots)}{M}=M(f)(\val{t_1}{M}, \val{t_2}{M}, \ldots)$.
+\end{mytitle}
+\begin{mytitle}[Satisfaction] A formula $A$ is satisfied by a model $M$, written $M\models A$, is defined by 
+\begin{itemize}
+    \item $M\models t$ iff $\val{t}{M}=true$
+    \item $M\models \lnot A$ iff $M\not\models A$
+    \item $M\models \forall x: T.A$ iff $\forall v\in M(T), M[x \to v]\models A$
+    \item $M\models \exists x: T.A$ iff $\exists v\in M(T), M[x \to v]\models A$
+\end{itemize}
+\end{mytitle}
+\begin{mytitle}[Interpretation] Sorts and function symbols are either interpreted or uninterpreted. Interpreted symbols have fixed interpretations, independent of the model.For example, Bool is interpreted and the boolean equality "$=$" is interpreted. Models specify the interpretations fro the free, uninterpreted symbols.
+\end{mytitle}
+
+\subsection{Ackermannization}
+\begin{mytitle}[General encoding recipe] \hfill
+\begin{itemize}
+    \item Find a representation for the problem states.
+    \item Define an encoding from the original problem into this representation.
+    \item Identify and represent missing properties, make sure you don't add any properties.
+    \item Optionally optimize redundancy in the representation/encoding.
+\end{itemize}
+\end{mytitle}
+\begin{mytitle}[Equality] 
+    \begin{mysubtitle} [Signature definition] Consider a signature consisting of only a single uninterpreted sort $T$ plus the interpreted sort Bool with constants $\top$ and $\bot$, plus the interpreted equality on $T$, written $=$. We consider only quantifier-free formulas. 
+    \end{mysubtitle}
+    \begin{mysubtitle}[Ackermannization] For each application of equality $x=y$ in the original formula, introduce a fresh variable $eq_{x,y}$ of sort Bool and replace all $x=y$ with $eq_{x,y}$. We also have to conjoin reflexivity ($eq_{x,x}, \ldots$), symmetry ($eq_{x,y} \Leftrightarrow eq_{y,x}$) and transitivity ($eq_{x,y} \land eq_{y,z} \To eq_{x,z}$) to the formula then they are equi-satisfiable.
+    \end{mysubtitle}
+\end{mytitle}
+\begin{mytitle}[Equality and uninterpreted functions] 
+    \begin{mysubtitle} [Signature definition] Consider a signature consisting of any number of uninterpreted sorts plus Bool with $\top$ and $\bot$, any number of uninterpreted function symbols over these sorts plus the equality functions "$=$" on each uninterpreted sort. Consider only quantifier-free formulas.
+    \end{mysubtitle}
+    \begin{mysubtitle}[Ackermannization] For each function application $f(x)$ in the original formula with only variables as a parameter, introduce a fresh variable $f_x$ of the same sort as the return sort of $f$ and replace all occurrences of $f(x)$ with $f_x$. Repeat this process until the original formula contains no function symbols. Each time we introduce a variable $f_x$ to replace $f(x)$, for each variable $f_y$ already introduced to replace $f(y)$, we conjoin $x=y \To f_x = f_y$ to the formula, then they are equi-satisfiable.
+    \end{mysubtitle}
+\end{mytitle}
+\begin{mytitle}[Finitely-bounded quantifiers] In general, reasoning about quantifiers needs more than a SAT solver, however finitely-bounded quantifiers can be easily handled. Two examples:
+\begin{itemize}
+    \item $\forall x: Int.\ 0 \le x \land x \le 2 \To A \equiv 0 \To A \land 1\To A \land 2\To A$
+    \item $\exists x: Int.\ 0 \le x \land x \le 2 \land A \equiv (0 \land A) \lor (1\land A) \lor (2\land A)$
+\end{itemize}
+\end{mytitle}
