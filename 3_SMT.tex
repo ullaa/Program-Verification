@@ -11,7 +11,7 @@
 We will only look at lazy SMT in this lecture.
 \end{mytitle}
 
-\subsection{Definitions}
+\subsection{Definitions for First-Order Logic}
 \begin{mytitle}[Theory] A theory $T$ is a pair of a signature $sig(T)$ and a set of models $models(T)$. The domain of all $models(T)$ must be $sig(T)$ and all elements of $models(T)$ must interpret interpreted symbols as usual. One example is the theory of non-linear arithmetic $T_Z$ has $sig(T_Z)=\{Int, 0, 1, +, -, \cdot, /, \le\}$.
 \end{mytitle}
 \begin{mytitle}[$S$-formula] For a signature $S$, a formula $A$ is a $S$-formula iff $A$ contains only function symbols belonging to $S$ and uninterpreted constant symbols.
@@ -61,7 +61,7 @@ We will only look at lazy SMT in this lecture.
 \end{mytitle}
 \begin{mytitle}[Extension] A model $M'$ is an extension of a model $M$ if for every uninterpreted sort $S\in dom(M)$, $S\in dom(M')$ and $M(S) \subseteq M'(S)$ and for every term $t$ holds that if $\val{t}{M}$ is defined then $\val{t}{M'}$ is defined and $\val{t}{M} = \val{t}{M}$.
 \end{mytitle}
-\begin{mytitle}[Stably-infinite] A theory $T$ is stably-infinite, if for any $M\in models(T)$ and $T$-formula $A$ such that $M\models A$, we have $M'\models A$ in an extension $M'$ of $M$.
+\begin{mytitle}[Stably-infinite] A theory $T$ is stably-infinite, if for any $M\in models(T)$ and $T$-formula $A$ such that $M\models A$, we have $M'\models A$ in an extension $M'$ of $M$. Being stably-infinite  prevents a theory from imposing upper bounds on the sizes of models and allows partial models from solvers to potentially be combined.
 \end{mytitle}
 \begin{mytitle}[Purification] For each literal $l$ in $A$, involving terms from both theories, select a subterm $t$ of $l$ containing symbols from only one theory but not the other. Choose a fresh constant symbol $c$. Rewrite $l$ in $A$ by replacing $t$ with $c$ and conjoin $c=t$ to $A$. Repeat this until each literal's functions are from a single theory plus the shared constants. 
     \begin{mysubtitle}[Shared Constants] The newly introduced constants plus the old variables are together called the shared constants.

@@ -9,9 +9,9 @@
 \node (f2) [draw, circle, minimum size=0.8, align=center] at (2,2) {$f$};
 \node (f3) [draw, circle, minimum size=0.8, align=center] at (4,2) {$f$};
 
-\draw [double, green, double distance=1.5] (b) -- (f1);
-\draw [double, green, double distance=1.5] (f1) -- (f2);
-\draw [red] (f3) -- (b);
+\draw [double, dashed, thick, green, double distance=1.5] (b) -- (f1);
+\draw [double, dashed, thick, green, double distance=1.5] (f1) -- (f2);
+\draw [red, dotted, thick] (f3) -- (b);
 \draw [->] (f1) -- (b);
 \draw [->] (f2) -- (a);
 \draw [->] (f3) -- (c);
@@ -30,11 +30,11 @@
 \node (f2) [draw, circle, minimum size=0.8, align=center] at (2,2) {$f$};
 \node (f3) [draw, circle, minimum size=0.8, align=center] at (4,2) {$f$};
 
-\draw [double, green, double distance=1.5] (b) -- (f1);
-\draw [double, green, double distance=1.5] (f1) -- (f2);
-\draw [double, green, double distance=1.5] (a) -- (c);
-\draw [double, green, double distance=1.5] (f2) -- (f3);
-\draw [red] (f3) -- (b);
+\draw [double, dashed, thick, green, double distance=1.5] (b) -- (f1);
+\draw [double, dashed, thick, green, double distance=1.5] (f1) -- (f2);
+\draw [double, dashed, thick, green, double distance=1.5] (a) -- (c);
+\draw [double, dashed, thick, green, double distance=1.5] (f2) -- (f3);
+\draw [red, dotted, thick] (f3) -- (b);
 \draw [->] (f1) -- (b);
 \draw [->] (f2) -- (a);
 \draw [->] (f3) -- (c);

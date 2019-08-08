@@ -4,7 +4,7 @@
 \end{mytitle}
 \begin{mytitle}[SAT solver] An efficient tool to automatically answer this question. This is the classic NP-complete problem. Thus the worst case complexity is exponential. But average cases encountered in practice can be handled much faster.
 \end{mytitle}
-\subsection{Definitions}
+\subsection{Definitions for Propositional Logic}
 \begin{mytitle}[Propositional variables] An alphabet $p, q, r, \ldots, p_1, p_2$
 \end{mytitle}
 \begin{mytitle}[Propositional formulas] $A, B ::= p\ |\ \top\ |\ \bot\ |\ \lnot A\ |\ A \land B\ |\ A \lor B\ |\ A \To B\ |\ A \Leftrightarrow B$
@@ -66,17 +66,17 @@
     \begin{mysubtitle}[Decision] If $p$ occurs both positively and negatively in clauses of $A$, apply the algorithm to $(M\cup \{p\}, A\land p)$. If we get $(sat, M)$ then return that. Otherwise, apply the algorithm to $(M\cup \{\lnot p\}, A\land \lnot p)$ and return the result.
     \end{mysubtitle}
 \end{mytitle}
-\begin{mytitle}[Implication graph] We can visualize the search for a model with an implication graph. We use a red circle to indicate decision literals and red arrows to indicate the order of decisions. We use blue circles for literals added due to unit propagation and blue arrows to record its dependencies. When a clause becomes empty, we add a green conflict node and add blue arrows analogously to unit propagation, so we can see which decisions had to do with the conflict.
+\begin{mytitle}[Implication graph] We can visualize the search for a model with an implication graph. We use a red circle to indicate decision literals and red arrows to indicate the order of decisions. We use blue circles for literals added due to unit propagation and blue arrows to record its dependencies. When a clause becomes empty, we add a orange conflict node and add blue arrows analogously to unit propagation, so we can see which decisions had to do with the conflict.
 \end{mytitle}
+\input{figures/1_implication_graph.tex}
 
 \subsection{CDCL Algorithm}
 \begin{mytitle}[Conflict-Driven Clause Learning CDCL Algorithm] This algorithm is better than DPLL in practice, but less so for random SAT examples. In practice, clauses are also periodically removed during SAT solver runs.
     \begin{mysubtitle}[Back-jumping] When a conflict is found, identify the relevant decision literals, then pop the relevant literal and as many other non-relevant literals from the stack as possible. Then flip the relevant literal and go on.
     \end{mysubtitle}
-    \begin{mysubtitle}[Clause Learning] When a conflict is found, draw a cut in the graph, separating the conflict node from all decision literals. All edges should go from left to right. For nodes with outgoing edges crossing the boundary, save the disjunction of the negations of their literals. When back-jumping, conjoin this new clause to the current formula.
+    \begin{mysubtitle}[Clause Learning] When a conflict is found, draw a cut in the graph, separating the conflict node from all decision literals. All edges should go from left to right. There should be a maximal amount of nodes on the side of the conflict, but only those that are in any way connected to it. For nodes with outgoing edges crossing the boundary, save the disjunction of the negations of their literals. When back-jumping, conjoin this new clause to the current formula.
     \end{mysubtitle}
 \end{mytitle}
-
 \input{figures/1_backjumping}
 \input{figures/1_clauselearning}
 

@@ -2,7 +2,7 @@
 \section{Quantifiers}
 \begin{mytitle}[Approaches] We can either focus on model finding for which both an eager and a lazy approach exist. Or we can use E-matching, which does not generate models, but is good for $unsat$ results which are important for program verification. 
 \end{mytitle}
-\subsection{Definitions}
+\subsection{Definitions for Quantifiers}
 \begin{mytitle}[Quantified Literal] A quantified literal is a formula $\forall x: T\ A$ or its negation $\lnot \forall x: T\ A$. Remember that $\exists x: T\ \lnot A \equiv \lnot\forall x: T\ A$.
 \end{mytitle}
 \begin{mytitle}[Ground term] A ground term is a term containing no (quantified) variables.
@@ -46,7 +46,7 @@
     \begin{mysubtitle}[Triggers] We allow a trigger to be attached to any $\forall$-quantifier. For example $\forall x \{t\} A$. This term $t$ is of any sort and satisfies the following: $t$ must contain all the variables quantified by the quantifier, $t$ may not contain interpreted function symbols except for constants and $t$ must contain at least one non-constant function symbol. For example $\forall x: Int\ \{f(x)\} f(x) < b$.
     \end{mysubtitle}
 \end{mytitle}
-\begin{mytitle}[Matching a trigger] A term $g$ matches a trigger $t$ if $g$ is a ground term $t[t'/x]$. A $\forall$-quantifier will only be instantiated if a ground term matches it. For example in the formula $g(f(a))=0 \land \forall x: Int\ \{g(f(x))\} g(f(x)) = 1$ the term $g(f(a))$ matches the trigger $g(f(x))$, causing the instantiation $g(f(a))=1$.
+\begin{mytitle}[Matching a trigger] A quantifier $\forall x. \{t\}\ A$ will only be instantiated when there is a ground term $t[t'/x]$ in the current formula. In this case $A[t'/x]$ is conjoined to the current formula. For example in the formula $g(f(a))=0 \land \forall x: Int\ \{g(f(x))\} g(f(x)) = 1$ the term $g(f(a))$ matches the trigger $g(f(x))$ (with $t'=a$), causing the instantiation $g(f(a))=1$.
 \end{mytitle}
 \begin{mytitle}[E-matching] A quantifier $\forall x\{t\} A$ will only be instantiated when there are ground terms $t'$ and $t''$ such that $t''$ occurs in our current formula to satisfy / our current model and $t[t'/x] = t''$ is true in our current model. Triggers are matched modulo equalities. E-matching can be efficiently implemented by pattern-matching triggers against the current E-graph.
 \end{mytitle}

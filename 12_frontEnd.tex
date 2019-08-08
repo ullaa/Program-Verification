@@ -1,0 +1,16 @@
+\section{Front End Verification and Research Topics}
+\begin{mytitle}[Crucial aim] The users should not know the tool stack but instead work only at their level of abstraction.
+\end{mytitle}
+\begin{mytitle}[Obtaining specifications] A tool like Viper needs substantial specification to be able to do verification. A front-end tool can deal with this need in several different ways: 
+\begin{itemize}
+    \item It could demand substantial specification itself. This has the advantage that this is easy for the front-end tool but this focuses only on expert users that can write theses specifications themselves.
+    \item It could infer a minimal specification. This has the advantage that this is easy for the user to use, but the front-end tool has to do a lot of work. There is still ongoing research on applying static analysis techniques to this problem. One approach could also be that permission-related specifications are generated automatically while functional specifications are written by the user.
+\end{itemize} 
+\end{mytitle}
+\subsection{Front End Verification for Rust}
+\begin{mytitle}[Exploiting the type system] Rust and some other modern programming languages have advanced type systems which prescribe ownership information. These type systems prescribe which parts of the heap can be accessed via which references at any given program scope. We can exploit this rich type information to generate permission-related specifications, enabling a higher-level program verifier for the Rust language.
+\end{mytitle}
+\begin{mytitle}[Good abstractions] Providing language abstractions is a critical aspect of our tool chain. When possible we want to abstract away that and how higher-level concepts are mapped to lower-level tools. The user should also have a clear, high-level view of what they can expect, and not need to think about the encoding. 
+\end{mytitle}
+\begin{mytitle}[Unreliability] There are many forms of unreliability, such as that expected properties cannot be deduced, unexpected properties can be deduced or the runtimes are unpredictable or too slow. 
+\end{mytitle}

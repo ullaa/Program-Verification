@@ -9,9 +9,9 @@
 \node (0) [draw, circle, minimum size=0.8, align=center] at (-1,1) {$0$};
 \node (1) [draw, circle, minimum size=0.8, align=center] at (3,1) {$1$};
 
-\draw [double, green, double distance=1.5] (0) -- (g);
-\draw [double, green, double distance=1.5] (b) -- (f);
-\draw [red] (0) -- (1);
+\draw [double, dashed, thick, green, double distance=1.5] (0) -- (g);
+\draw [double, dashed, thick, green, double distance=1.5] (b) -- (f);
+\draw [red, dotted, thick] (0) -- (1);
 
 \draw [->] (g) -- (b);
 \draw [->] (f) -- (a);
@@ -30,10 +30,10 @@
 \node (0) [draw, circle, minimum size=0.8, align=center] at (-1,1) {$0$};
 \node (1) [draw, circle, minimum size=0.8, align=center] at (3,1) {$1$};
 
-\draw [double, green, double distance=1.5] (0) -- (g);
-\draw [double, green, double distance=1.5] (b) -- (f);
-\draw [double, green, double distance=1.5] (g) -- (1);
-\draw [red] (0) -- (1);
+\draw [double, dashed, thick, green, double distance=1.5] (0) -- (g);
+\draw [double, dashed, thick, green, double distance=1.5] (b) -- (f);
+\draw [double, dashed, thick, green, double distance=1.5] (g) -- (1);
+\draw [red, dotted, thick] (0) -- (1);
 
 \draw [->] (g) -- (b);
 \draw [->] (f) -- (a);
