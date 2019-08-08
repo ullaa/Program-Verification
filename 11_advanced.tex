@@ -7,9 +7,13 @@
 \begin{mytitle}[Degenerate specification] Writing procedure specifications without implementing them runs the risk that implementations turn out to be awkward or impossible. A procedure might not be implementable simply because the task is impossible, or because e.g. the precondition allows for unintended initial states, so called degenerate cases.
 \end{mytitle}
 \lstinputlisting[caption={Degenerate case example. Here the precondition of \texttt{addAtEnd} permits the possibility that \texttt{l1.next} == \texttt{l2.next} and with that initial state the postcondition is unsatisfiable. \texttt{addAtEndFixed} fixes this problem by making sure \texttt{l1.next} != \texttt{l2.next}.},language=viper] {code/11_degenerate}
-\begin{mytitle}[Inconsistency due to recursion] Functions in Viper can potentially introduce inconsistency. Function postconditions can also cause inconsistencies. Predicate definitions do not have the same potential problems
+\begin{mytitle}[Inconsistency due to recursion] Functions in Viper can potentially introduce inconsistency. Function postconditions can also cause inconsistencies. Predicate definitions do not have the same potential problems because predicates are always finitely unfoldable. Infinitely unfoldable predicate instances are effectively false.
 \end{mytitle}
 \lstinputlisting[caption={Bad functions and good predicates.}, language=viper] {code/11_inconsistent}
+\begin{mytitle}[Modelling array allocation] We don't want to concretely specify how a memory allocator works, instead we abstract over how it works via non-determinism and specifications. 
+\end{mytitle}
+\begin{mytitle}[Iterating through a set] We can iterate through a set by non-deterministically choosing elements, assuming that they are in the set and then removing them after we are done.
+\end{mytitle}
 \lstinputlisting[caption={Writing out a set to an array in Viper.}, language=viper, float] {code/11_setToArray}
 
 

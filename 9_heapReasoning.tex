@@ -16,16 +16,24 @@
     \item $e \To A$: here we cannot have \texttt{acc($e$.$f$, $p$)} on the left-hand side because we can never "negate" permissions in Viper. If we allowed this we could do \texttt{acc($e$.$f$, $p$) $\To \bot$} with which we take away a permission.
 \end{itemize}
 \end{mytitle}
-\begin{mytitle}[State] A state is now a triple $(H, P, \sigma)$ with heap $H$ which maps (object, field name)-pairs to values, permission mask $P$ which maps (object, field name)-pairs to rationals within $[0,1]$ and the environment $\sigma$ which maps variables to values.
+\begin{mytitle}[State] A state is now a triple $(H, P, \sigma)$.
+    \begin{mysubtitle}[Heap] Heap $H$ maps (object, field name)-pairs to values.
+    \end{mysubtitle}
+    \begin{mysubtitle}[Permission mask] Permission mask $P$ maps (object, field name)-pairs to rationals within $[0,1]$.
+    \end{mysubtitle}
+    \begin{mysubtitle}[Environment] Environment $\sigma$  maps variables to values.
+    \end{mysubtitle}
 \end{mytitle}
 \begin{mytitle}[Trueness of IDF assertions] An IDF assertion $A$ is true in state $(H, P, \sigma)$, written $H, P, \sigma \models A$ as defined as follows:
 \begin{itemize}
     \item $H, P, \sigma \models e$ iff $\val{e}{H, \sigma}$ = true
-    \item $H, P, \sigma \models$ \texttt{acc($x$.$f$)} iff $P$[$\val{e}{H, \sigma}$, $f$] $\ge \val{p}{H, \sigma}$
+    \item $H, P, \sigma \models$ \texttt{acc($x$.$f$, $p$)} iff $P$[$\val{x}{H, \sigma}$, $f$] $\ge \val{p}{H, \sigma}$
     \item $H, P, \sigma \models A\land B$ iff $H, P, \sigma \models A$ and $H, P, \sigma \models B$
-    \item $H, P, \sigma \models A*B$ iff $\exists P_1, P_2:\ P = P_1 \uplus P_2$ and $H, P, \sigma \models A$ and $H, P, \sigma \models B$
+    \item $H, P, \sigma \models A*B$ iff $\exists P_1, P_2:\ P = P_1 \uplus P_2$ and $H, P_1, \sigma \models A$ and $H, P_2, \sigma \models B$
     \item $H, P, \sigma \models e\To A$ iff ($\val{e}{H, \sigma}$ = true) $\To H, P, \sigma \models A$
 \end{itemize}
+\end{mytitle}
+\begin{mytitle}[Viper] Viper supports similar core logic to the IDF syntax we have seen here. One key difference is that Viper does not support logical conjunctions $A\land B$ but it does support separating conjunctions $A * B$. 
 \end{mytitle}
 
 \subsection{Framing and Permissions}
@@ -34,7 +42,7 @@
 \begin{mytitle}[Required permissions] The permissions required by $A$ in state $(H, P, \sigma)$, written $\texttt{Perms($A$)}_{(H, \sigma)}$ are defined as follows:
 \begin{itemize}
     \item $\texttt{Perms($e$)}_{(H, \sigma)}$ = $\emptyset$
-    \item $\texttt{Perms(acc($x$.$f$))}_{(H, \sigma)}$ = $\emptyset[(\val{e}{H, \sigma}, f) \to \val{p}{H, \sigma}]$
+    \item $\texttt{Perms(acc($x$.$f$, $p$))}_{(H, \sigma)}$ = $\emptyset[(\val{x}{H, \sigma}, f) \to \val{p}{H, \sigma}]$
     \item $\texttt{Perms($A\land B$)}_{(H, \sigma)}$ = $max(\texttt{Perms($A$)}_{(H, \sigma)}, \texttt{Perms($B$)}_{(H, \sigma)}$)
     \item $\texttt{Perms($A*B$)}_{(H, \sigma)}$ = $\texttt{Perms($A$)}_{(H, \sigma)} \uplus \texttt{Perms($B$)}_{(H, \sigma)}$
     \item $\texttt{Perms($e \To A$)}_{(H, \sigma)}$ = $\texttt{Perms($A$)}_{(H, \sigma)}$ if $\val{e}{H,\sigma}$ = true or $\emptyset$ if $\val{e}{H,\sigma}$ = false
@@ -56,5 +64,5 @@
 \end{mytitle}
 \begin{mytitle}[Encoding of method calls] We can now encode method calls with \texttt{inhale} and \texttt{exhale} statements and labels: \texttt{$\vec{z}$ := $m$($\vec{e}$)} becomes \texttt{label $l$; exhale pre[$\vec{e}$/$\vec{x}$]; havoc $\vec{z}$; inhale post[$\vec{e}$/$\vec{x}$][$\vec{z}$/$\vec{y}$][old[$l$]/old]}. The method pre- and postconditions must be self-framing assertions.
 \end{mytitle}
-\begin{mytitle}[Eliminating loops] We can also eliminate loops: \texttt{while ($b$) invariant $A_I$ \{$s$\}} becomes \texttt{exhale $A_I$; havoc $\vec{x}$; ((inhale $A_I\land b$; $s$; exhale $A_I$; assume false)[](inhale $A_I\land \lnot b$))}. Loop invariants must be self-framing assertions.
+\begin{mytitle}[Eliminating loops] We can also eliminate loops: \texttt{while ($b$) invariant $A_I$ \{$s$\}} becomes \texttt{exhale $A_I$; havoc $\vec{x}$; ((exhale forall $y$:Ref::acc($y$.$f$, perm($y$.$f$)); inhale $A_I\land b$; $s$; exhale $A_I$; assume false)[](inhale $A_I\land \lnot b$))}. Loop invariants must be self-framing assertions.
 \end{mytitle}

@@ -9,7 +9,7 @@
 In most cases, such features are best handled natively with SMT, but in some cases, these features can be encoded into propositional logic. We can then directly use a SAT solver.
 \end{mytitle}
 
-\subsection{Definitions}
+\subsection{Definitions for Sorted First-Order Logic}
 \begin{mytitle}[Sort] We fix a set of sorts(types) $T_1, T_2, \ldots$ typically including Bool.
 \end{mytitle}
 \begin{mytitle}[Term variables] For each sort, we fix an alphabet of term variables $x, y, \ldots, x_1, x_2 \ldots$.
@@ -47,7 +47,7 @@ In most cases, such features are best handled natively with SMT, but in some cas
 \begin{mytitle}[Equality] 
     \begin{mysubtitle} [Signature definition] Consider a signature consisting of only a single uninterpreted sort $T$ plus the interpreted sort Bool with constants $\top$ and $\bot$, plus the interpreted equality on $T$, written $=$. We consider only quantifier-free formulas. 
     \end{mysubtitle}
-    \begin{mysubtitle}[Ackermannization] For each application of equality $x=y$ in the original formula, introduce a fresh variable $eq_{x,y}$ of sort Bool and replace all $x=y$ with $eq_{x,y}$. We also have to conjoin reflexivity ($eq_{x,x}, \ldots$), symmetry ($eq_{x,y} \Leftrightarrow eq_{y,x}$) and transitivity ($eq_{x,y} \land eq_{y,z} \To eq_{x,z}$) to the formula then they are equi-satisfiable.
+    \begin{mysubtitle}[Ackermannization] For each application of equality $x=y$ in the original formula, introduce a fresh variable $eq_{x,y}$ of sort Bool and replace all $x=y$ with $eq_{x,y}$. We also have to conjoin reflexivity ($eq_{x,x}, \ldots$), symmetry ($eq_{x,y} \Leftrightarrow eq_{y,x}, \ldots$) and transitivity ($eq_{x,y} \land eq_{y,z} \To eq_{x,z}, \ldots$) to the formula then they are equi-satisfiable.
     \end{mysubtitle}
 \end{mytitle}
 \begin{mytitle}[Equality and uninterpreted functions] 

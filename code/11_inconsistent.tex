@@ -22,6 +22,8 @@ method test_more(x: Int)
     // the postcondition of still_bad
 }
 
+// this predicate is effectively false
+// e.g. ok(1) is equivalent to false
 predicate ok(i: Int) { 
     ok(i+1) 
 }
